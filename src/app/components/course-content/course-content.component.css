@@ -1,0 +1,7 @@
+.course-container { display: flex; }
+.sidebar { width: 250px; background: #161b22; padding: 1rem; }
+.sidebar h2 { color: #00e6ff; }
+.sidebar ul { list-style: none; padding: 0; }
+.sidebar li { padding: 8px 0; border-bottom: 1px solid #333; cursor: pointer; }
+.content { flex: 1; padding: 2rem; background-color: #0d1117; }
+pre { background: #161b22; padding: 1rem; border-radius: 5px; color: #c9d1d9; white-space: pre-wrap; }

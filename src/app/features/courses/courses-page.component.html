@@ -1,0 +1,46 @@
+<mat-toolbar color="primary" class="toolbar">
+  <span class="logo">ICAO</span>
+  <span class="spacer"></span>
+  <button mat-raised-button color="accent" routerLink="/">Início</button>
+</mat-toolbar>
+
+<section class="hero">
+  <h1 class="hero-title">
+    Simulados <span class="highlight">ICAO</span>
+  </h1>
+  <p class="hero-subtitle">
+    Escolha um teste simulado para treinar no formato da prova.
+  </p>
+</section>
+
+<div *ngIf="loading" class="loading">
+  <p>Carregando simulados...</p>
+</div>
+
+<section class="courses-wrap" *ngIf="!loading">
+  <div class="cards">
+    <mat-card
+      class="course-card"
+      *ngFor="let c of courses; let i = index"
+      (click)="open(c)"
+      tabindex="0"
+      role="button"
+      aria-label="Abrir simulado {{ c.title }}"
+    >
+      <div class="course-card__content">
+        <span class="course-card__kicker">Simulado {{ i + 1 }}</span>
+        <h2 class="course-card__title">{{ c.title }}</h2>
+        <p class="course-card__desc" *ngIf="c.description">{{ c.description }}</p>
+
+        <div class="course-card__meta">
+          <span class="pill">Teste completo</span>
+          <span class="pill alt" *ngIf="c.code">{{ c.code }}</span>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <p class="empty-state" *ngIf="courses.length === 0">
+    Nenhum simulado disponível no momento.
+  </p>
+</section>

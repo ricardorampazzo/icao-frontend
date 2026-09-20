@@ -1,0 +1,18 @@
+/* Tema base escuro simples */
+:root { color-scheme: dark; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #0d1117;
+  color: #c9d1d9;
+  font-family: Roboto, Arial, sans-serif;
+}
+
+/* Ajustes triviais para cards/listas */
+mat-card {
+  background: #0e131a !important;
+  color: #e6f1ff !important;
+  border: 1px solid #1c2633 !important;
+  border-radius: 8px !important;
+}

@@ -1,0 +1,151 @@
+<main class="landing-page">
+  <section class="hero" id="inicio">
+    <img
+      class="hero__image"
+      src="assets/icao-hero.png"
+      alt="Mesa de estudos com headset, carta de navegação e plataforma de áudio para preparação ICAO"
+    />
+    <div class="hero__overlay"></div>
+
+    <header class="topbar" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" aria-label="ICAO Prep">
+        <span class="brand__mark">ICAO</span>
+        <span class="brand__text">Prep</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Seções da página">
+        <a href="#material">Material</a>
+        <a href="#metodo">Método</a>
+        <a href="#equipe">Equipe</a>
+        <a routerLink="/login">Entrar</a>
+      </nav>
+    </header>
+
+    <div class="hero__content">
+      <p class="eyebrow">Preparatório ICAO para pilotos</p>
+      <h1>Estude para o teste ICAO com material direto, prático e acessível.</h1>
+      <p class="hero__lead">
+        Uma plataforma criada por pilotos e professores para quem já tem inglês intermediário e
+        quer focar no formato real da prova: áudios, perguntas, imagens, interações e orientação
+        durante o processo.
+      </p>
+
+      <div class="hero__actions" aria-label="Ações principais">
+        <a class="button button--primary" href="#contato">Quero conhecer o material</a>
+        <a class="button button--secondary" routerLink="/login">Já sou aluno</a>
+      </div>
+
+      <dl class="hero__stats" aria-label="Diferenciais do preparatório">
+        <div>
+          <dt>PP / PC / MLTE / IFR</dt>
+          <dd>vivência real na formação</dd>
+        </div>
+        <div>
+          <dt>ICAO 4 / 5 / 6</dt>
+          <dd>foco nas metas do teste</dd>
+        </div>
+        <div>
+          <dt>Desde 2021</dt>
+          <dd>aulas preparatórias</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--intro">
+    <div class="section__heading">
+      <p class="eyebrow">Para quem é</p>
+      <h2>Uma preparação objetiva para pilotos que não precisam começar do zero.</h2>
+    </div>
+    <p class="section__text">
+      O conteúdo foi pensado para pilotos com inglês intermediário que querem renovar ou conquistar
+      o ICAO sem depender de um curso completo de inglês geral. O foco está no teste: entender as
+      etapas, praticar respostas, treinar escuta e ganhar segurança com material bem organizado.
+    </p>
+  </section>
+
+  <section class="section feature-grid" id="material" aria-labelledby="material-title">
+    <div class="section__heading">
+      <p class="eyebrow">Material de estudo</p>
+      <h2 id="material-title">Tudo organizado para simular a experiência da prova.</h2>
+    </div>
+
+    <article class="feature-card" *ngFor="let feature of features">
+      <span class="feature-card__icon" aria-hidden="true">{{ feature.icon }}</span>
+      <h3>{{ feature.title }}</h3>
+      <p>{{ feature.description }}</p>
+    </article>
+  </section>
+
+  <section class="section method" id="metodo">
+    <div class="method__content">
+      <p class="eyebrow">Como funciona</p>
+      <h2>Explicação passo a passo, prática guiada e suporte quando surgirem dúvidas.</h2>
+      <p>
+        A plataforma reúne explicações didáticas sobre cada etapa do teste ICAO e materiais de
+        treino com áudios de alta qualidade, perguntas, imagens e interações. Edson também se
+        disponibiliza para tirar dúvidas durante o processo, com possibilidade de aulas particulares
+        conforme agenda.
+      </p>
+    </div>
+
+    <ol class="steps" aria-label="Etapas de estudo">
+      <li *ngFor="let step of steps">
+        <span>{{ step.number }}</span>
+        <div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section team" id="equipe">
+    <div class="section__heading">
+      <p class="eyebrow">Equipe</p>
+      <h2>Três profissionais reunindo aviação, inglês e produto digital.</h2>
+    </div>
+
+    <div class="team-grid">
+      <article class="profile-card profile-card--featured">
+        <span class="profile-card__role">Piloto profissional e professor</span>
+        <h3>Edson Gonçalves Braga</h3>
+        <p>
+          Iniciou na aviação em 2015 em Ciências Aeronáuticas, avançou nas carteiras PP, PC, MLTE
+          e IFR, trabalhou quatro anos como professor de inglês e conquistou ICAO 5 em 2021. Desde
+          então, prepara pilotos de todo o Brasil para ICAO 4, 5 e 6.
+        </p>
+      </article>
+
+      <article class="profile-card">
+        <span class="profile-card__role">Produto e operação</span>
+        <h3>Lucas Braga Bispo</h3>
+        <p>
+          Atua na estruturação do projeto para transformar a experiência prática da equipe em uma
+          plataforma simples de estudar, acessar e evoluir.
+        </p>
+      </article>
+
+      <article class="profile-card">
+        <span class="profile-card__role">Tecnologia e plataforma</span>
+        <h3>Ricardo</h3>
+        <p>
+          Contribui com a construção digital do portal, priorizando uma experiência intuitiva para
+          quem precisa estudar com clareza e sem complicação.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="final-cta" id="contato">
+    <div>
+      <p class="eyebrow">Preço acessível e foco no teste</p>
+      <h2>Prepare-se com um material pensado para a rotina real de pilotos.</h2>
+      <p>
+        Ideal para quem quer estudar de forma direcionada, revisar o ICAO ou complementar aulas
+        particulares com uma plataforma de apoio.
+      </p>
+    </div>
+    <a class="button button--primary" routerLink="/login" [queryParams]="{ mode: 'register' }">Criar conta</a>
+  </section>
+</main>

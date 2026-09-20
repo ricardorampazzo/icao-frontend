@@ -1,0 +1,201 @@
+/* Barra superior */
+.toolbar { padding: 0 12px; }
+.spacer  { flex: 1 1 auto; }
+
+/* Skeleton */
+.loading { padding: 24px; color: #9aa4af; }
+
+/* Grid principal: sidebar + conteúdo */
+.page {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  padding: 18px;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  background: #0f171f;
+  border: 1px solid #243041;
+  border-radius: 10px;
+  padding: 12px;
+  color: #e6edf3;
+  min-height: 420px;
+}
+
+.side-title {
+  margin: 6px 6px 12px;
+  font-size: 14px;
+  color: #9aa4af;
+  font-weight: 600;
+}
+
+.list { display: grid; gap: 6px; }
+
+.lesson-item {
+  display: grid;
+  grid-template-columns: 28px 24px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: #131c26;
+  color: #cdd6df;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover { background: #162130; }
+
+  &.active {
+    background: #0e2437;
+    border-color: #2c5ea8;
+  }
+
+  .idx   { color: #9aa4af; width: 28px; }
+  .play  { font-size: 20px; width: 20px; height: 20px; color: #9bd2ff; }
+  .title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ===== Conteúdo ===== */
+.content { min-height: 420px; }
+
+.lesson-view {
+  /* remove qualquer “chanfro / bracket” antigo */
+  position: relative;
+  background: #0f141a !important;
+  color: #e6edf3;
+  border: 1px solid #243041;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: none; /* limpa sombras do tema */
+
+  .head {
+    margin-bottom: 8px;
+    .title { margin: 0 0 6px; font-size: 28px; font-weight: 700; }
+    .meta  { color: #9aa4af; font-size: 13px; display: flex; gap: 10px; }
+  }
+
+  .media {
+    margin: 12px 0 8px;
+    display: grid;
+    gap: 14px;
+
+    .text-content {
+      color: #dbe7ff;
+      background: #111b27;
+      border: 1px solid #243041;
+      border-radius: 8px;
+      padding: 14px 16px;
+      line-height: 1.65;
+    }
+
+    .img   { max-width: 100%; height: auto; display: block; border-radius: 8px; }
+    .video { width: 100%; border-radius: 8px; background: #000; }
+    .audio { width: 100%; }
+    .text  { line-height: 1.6; }
+    .asset-link {
+      display: inline-flex;
+      align-items: center;
+      color: #9bd2ff;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  .actions {
+    margin-top: 10px;
+    button mat-icon { margin-right: 6px; }
+  }
+}
+
+/* Placeholder */
+.placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  color: #9aa4af;
+  text-align: center;
+}
+
+/* Responsivo */
+@media (max-width: 1000px) {
+  .page { grid-template-columns: 1fr; }
+  .sidebar { order: 2; }
+  .content { order: 1; }
+}
+
+/* ===== Ajustes finos apenas no card da lição =====
+   (mantém todo o resto; sobrescreve só onde precisa) */
+.lesson-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .head {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #243041;
+
+    .title {
+      margin: 0 0 4px;
+      font-size: 26px;
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .meta {
+      color: #9aa4af;
+      font-size: 13px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  }
+
+  .media {
+    margin: 6px 0 4px;
+    .muted { color: #9aa4af; }
+  }
+
+  .actions {
+    margin-top: 4px;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  /* Botão no tema escuro (apenas aqui) */
+  .bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    &.mat-mdc-outlined-button .mdc-button__ripple { border-radius: 10px; }
+    &.mat-mdc-outlined-button .mdc-button__label { letter-spacing: .2px; }
+
+    &.mat-mdc-outlined-button {
+      --mdc-outlined-button-outline-color: #2c5ea8;
+      --mdc-text-button-label-text-color: #9bd2ff;
+      --mdc-outlined-button-label-text-color: #9bd2ff;
+      --mdc-outlined-button-container-color: transparent;
+    }
+
+    &:hover {
+      background: #0e2437 !important;
+      border-color: #3676d3;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+  }
+}

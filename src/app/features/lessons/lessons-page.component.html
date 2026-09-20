@@ -1,0 +1,103 @@
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-button routerLink="/courses">
+    <mat-icon>arrow_back</mat-icon>
+    Simulados
+  </button>
+  <span class="spacer"></span>
+</mat-toolbar>
+
+<div *ngIf="loading" class="loading">
+  Carregando quest&otilde;es...
+</div>
+
+<div class="page" *ngIf="!loading">
+  <aside class="sidebar">
+    <h3 class="side-title">Quest&otilde;es da parte #{{ moduleId }}</h3>
+
+    <div class="list">
+      <button
+        class="lesson-item"
+        *ngFor="let l of lessons; let i = index"
+        [class.active]="l.id === selectedLesson?.id"
+        (click)="select(l)"
+      >
+        <span class="idx">{{ (l.orderIndex ?? i + 1) }}.</span>
+        <mat-icon class="play">play_circle</mat-icon>
+
+        <span class="text-wrap">
+          <span class="title" [title]="l.title">{{ l.title }}</span>
+        </span>
+      </button>
+    </div>
+  </aside>
+
+  <section class="content">
+    <mat-card class="lesson-view" *ngIf="selectedLesson; else pickOne">
+      <header class="head">
+        <h1 class="title">{{ selectedLesson?.title }}</h1>
+
+        <p class="full-desc" *ngIf="selectedLesson?.description">
+          {{ selectedLesson?.description }}
+        </p>
+      </header>
+
+      <section class="media">
+        <article class="text-content" *ngIf="selectedLesson?.content">
+          {{ selectedLesson?.content }}
+        </article>
+
+        <ng-container *ngFor="let asset of assetsToRender; let i = index">
+          <ng-container [ngSwitch]="asset.type">
+            <img
+              *ngSwitchCase="'IMAGE'"
+              class="img"
+              [src]="asset.url"
+              [alt]="selectedLesson?.title || 'Imagem da questão'"
+            />
+
+            <audio
+              *ngSwitchCase="'AUDIO'"
+              class="audio"
+              [src]="asset.url"
+              controls
+              preload="metadata"
+            ></audio>
+
+            <video
+              *ngSwitchCase="'VIDEO'"
+              class="video"
+              [src]="asset.url"
+              controls
+              playsinline
+            ></video>
+
+            <a
+              *ngSwitchDefault
+              class="asset-link"
+              [href]="asset.url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ asset.fileName || 'Abrir material' }}
+            </a>
+          </ng-container>
+
+          <hr *ngIf="i < assetsToRender.length - 1" />
+        </ng-container>
+      </section>
+
+      <footer class="actions">
+        <button mat-stroked-button color="primary" class="bookmark-btn">
+          <mat-icon>bookmark_add</mat-icon>
+          Adicionar bookmark
+        </button>
+      </footer>
+    </mat-card>
+
+    <ng-template #pickOne>
+      <mat-card class="lesson-view placeholder">
+        Selecione uma quest&atilde;o &agrave; esquerda para visualizar o conte&uacute;do.
+      </mat-card>
+    </ng-template>
+  </section>
+</div>

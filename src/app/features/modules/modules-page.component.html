@@ -1,0 +1,46 @@
+<mat-toolbar color="primary" class="toolbar">
+  <span class="logo">ICAO</span>
+  <span class="spacer"></span>
+  <button mat-raised-button color="accent" routerLink="/courses">Simulados</button>
+</mat-toolbar>
+
+<section class="hero">
+  <h1 class="hero-title">
+    Partes do <span class="highlight">simulado</span>
+  </h1>
+  <p class="hero-subtitle">
+    Escolha uma parte para praticar. Cada parte pode reunir questões com áudio, imagem,
+    vídeo ou material textual.
+  </p>
+</section>
+
+<div *ngIf="loading" class="loading">
+  <p>Carregando partes do simulado...</p>
+</div>
+
+<section class="modules-wrap" *ngIf="!loading">
+  <div class="cards">
+    <mat-card
+      class="module-card"
+      *ngFor="let m of modules"
+      (click)="open(m)"
+      tabindex="0"
+      role="button"
+      aria-label="Abrir parte {{ m.title }}"
+    >
+      <div class="module-card__content">
+        <h2 class="module-card__title">{{ m.title }}</h2>
+        <p class="module-card__desc" *ngIf="m.description">{{ m.description }}</p>
+
+        <div class="module-card__meta">
+          <span class="pill">Parte {{ m.orderIndex || 1 }}</span>
+          <span class="pill alt">Questões práticas</span>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <p class="empty-state" *ngIf="modules.length === 0">
+    Nenhuma parte cadastrada para este simulado.
+  </p>
+</section>
