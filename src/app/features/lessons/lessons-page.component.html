@@ -6,98 +6,112 @@
   <span class="spacer"></span>
 </mat-toolbar>
 
-<div *ngIf="loading" class="loading">
-  Carregando quest&otilde;es...
-</div>
+<div *ngIf="loading" class="loading">Carregando questoes...</div>
 
-<div class="page" *ngIf="!loading">
+<main class="page" *ngIf="!loading">
   <aside class="sidebar">
-    <h3 class="side-title">Quest&otilde;es da parte #{{ moduleId }}</h3>
+    <h2 class="side-title">Questoes desta parte</h2>
 
     <div class="list">
       <button
         class="lesson-item"
-        *ngFor="let l of lessons; let i = index"
-        [class.active]="l.id === selectedLesson?.id"
-        (click)="select(l)"
+        *ngFor="let lesson of lessons; let i = index"
+        [class.active]="lesson.id === selectedLesson?.id"
+        (click)="select(lesson)"
       >
-        <span class="idx">{{ (l.orderIndex ?? i + 1) }}.</span>
-        <mat-icon class="play">play_circle</mat-icon>
-
-        <span class="text-wrap">
-          <span class="title" [title]="l.title">{{ l.title }}</span>
-        </span>
+        <span class="idx">{{ lesson.orderIndex ?? i + 1 }}</span>
+        <mat-icon class="play">record_voice_over</mat-icon>
+        <span class="title" [title]="lesson.title">{{ lesson.title }}</span>
       </button>
     </div>
   </aside>
 
-  <section class="content">
-    <mat-card class="lesson-view" *ngIf="selectedLesson; else pickOne">
-      <header class="head">
-        <h1 class="title">{{ selectedLesson?.title }}</h1>
+  <section class="content" *ngIf="selectedLesson; else pickOne">
+    <header class="question-head">
+      <div>
+        <span class="question-kicker">Questao {{ selectedLesson.orderIndex }}</span>
+        <h1>{{ selectedLesson.title }}</h1>
+      </div>
+      <span class="progress">{{ visibleStepCount }} de {{ stepsToRender.length }} etapas</span>
+    </header>
 
-        <p class="full-desc" *ngIf="selectedLesson?.description">
-          {{ selectedLesson?.description }}
-        </p>
-      </header>
+    <div class="steps">
+      <article
+        class="step"
+        *ngFor="let step of visibleSteps; let i = index"
+        [class.response-step]="step.type === 'RESPONSE'"
+      >
+        <div class="step-marker" aria-hidden="true">{{ i + 1 }}</div>
 
-      <section class="media">
-        <article class="text-content" *ngIf="selectedLesson?.content">
-          {{ selectedLesson?.content }}
-        </article>
+        <div class="step-body">
+          <h2>{{ roleLabel(step.role) }}</h2>
 
-        <ng-container *ngFor="let asset of assetsToRender; let i = index">
-          <ng-container [ngSwitch]="asset.type">
-            <img
-              *ngSwitchCase="'IMAGE'"
-              class="img"
-              [src]="asset.url"
-              [alt]="selectedLesson?.title || 'Imagem da questão'"
-            />
+          <p class="step-copy" *ngIf="step.content">{{ step.content }}</p>
 
-            <audio
-              *ngSwitchCase="'AUDIO'"
-              class="audio"
-              [src]="asset.url"
-              controls
-              preload="metadata"
-            ></audio>
+          <ng-container [ngSwitch]="step.type">
+            <ng-container *ngSwitchCase="'AUDIO'">
+              <audio
+                #audioPlayer
+                *ngIf="resolveUrl(step) as mediaUrl; else missingMedia"
+                class="audio"
+                [src]="mediaUrl"
+                (play)="onAudioPlay(step, audioPlayer)"
+                controls
+                preload="metadata"
+              ></audio>
+              <span class="audio-usage" *ngIf="step.maxPlays">{{ audioUsage(step) }}</span>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'IMAGE'">
+              <img
+                *ngIf="resolveUrl(step) as mediaUrl; else missingMedia"
+                class="image"
+                [src]="mediaUrl"
+                [alt]="selectedLesson.title"
+              />
+            </ng-container>
 
             <video
               *ngSwitchCase="'VIDEO'"
               class="video"
-              [src]="asset.url"
+              [src]="resolveUrl(step)"
               controls
               playsinline
             ></video>
 
-            <a
-              *ngSwitchDefault
-              class="asset-link"
-              [href]="asset.url"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {{ asset.fileName || 'Abrir material' }}
-            </a>
+            <div *ngSwitchCase="'RESPONSE'" class="response-cue">
+              <mat-icon>mic</mat-icon>
+              <span>Responda em voz alta antes de continuar.</span>
+            </div>
           </ng-container>
 
-          <hr *ngIf="i < assetsToRender.length - 1" />
-        </ng-container>
-      </section>
+          <ng-template #missingMedia>
+            <div class="missing-media">
+              <mat-icon>cloud_off</mat-icon>
+              Midia aguardando configuracao do Cloudflare.
+            </div>
+          </ng-template>
+        </div>
+      </article>
+    </div>
 
-      <footer class="actions">
-        <button mat-stroked-button color="primary" class="bookmark-btn">
-          <mat-icon>bookmark_add</mat-icon>
-          Adicionar bookmark
-        </button>
-      </footer>
-    </mat-card>
-
-    <ng-template #pickOne>
-      <mat-card class="lesson-view placeholder">
-        Selecione uma quest&atilde;o &agrave; esquerda para visualizar o conte&uacute;do.
-      </mat-card>
-    </ng-template>
+    <footer class="question-actions">
+      <button mat-stroked-button type="button" (click)="restartQuestion()" title="Reiniciar questao">
+        <mat-icon>restart_alt</mat-icon>
+        Reiniciar
+      </button>
+      <button mat-raised-button color="accent" type="button" *ngIf="hasNextStep" (click)="revealNextStep()">
+        Proxima etapa
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <span class="completed" *ngIf="!hasNextStep">
+        <mat-icon>check_circle</mat-icon>
+        Questao concluida
+      </span>
+    </footer>
   </section>
-</div>
+
+  <ng-template #pickOne>
+    <section class="content placeholder">Selecione uma questao para iniciar.</section>
+  </ng-template>
+</main>

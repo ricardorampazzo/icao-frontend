@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LessonsService, LessonVm, LessonType, LessonAssetVm } from '../../core/services/lessons.service';
+import {
+  LessonsService,
+  LessonVm,
+  LessonType,
+  LessonAssetVm,
+  QuestionStepVm,
+} from '../../core/services/lessons.service';
 
 @Component({
   selector: 'app-lessons-page',
@@ -12,6 +18,8 @@ export class LessonsPageComponent implements OnInit {
   selectedLesson?: LessonVm;
   moduleId!: number;
   loading = true;
+  visibleStepCount = 2;
+  private audioStarts: Record<string, number> = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -27,7 +35,7 @@ export class LessonsPageComponent implements OnInit {
           const bi = b.orderIndex ?? Number.MAX_SAFE_INTEGER;
           return ai - bi;
         });
-        this.selectedLesson = this.lessons[0];
+        this.select(this.lessons[0]);
         this.loading = false;
       },
       error: _ => { this.loading = false; }
@@ -36,16 +44,8 @@ export class LessonsPageComponent implements OnInit {
 
   select(l: LessonVm) {
     this.selectedLesson = l;
+    this.visibleStepCount = Math.min(2, this.stepsToRender.length);
   }
-
-  // Getters só pra facilitar o template (sem array)
-  get type1(): LessonType { return this.selectedLesson?.type1 ?? null; }
-  get type2(): LessonType { return this.selectedLesson?.type2 ?? null; }
-  get type3(): LessonType { return this.selectedLesson?.type3 ?? null; }
-
-  get mediaUrl1(): string | null { return this.selectedLesson?.mediaUrl1 ?? null; }
-  get mediaUrl2(): string | null { return this.selectedLesson?.mediaUrl2 ?? null; }
-  get mediaUrl3(): string | null { return this.selectedLesson?.mediaUrl3 ?? null; }
 
   get assetsToRender(): LessonAssetVm[] {
     if (!this.selectedLesson) return [];
@@ -66,6 +66,97 @@ export class LessonsPageComponent implements OnInit {
     ].filter((asset): asset is LessonAssetVm => asset !== null);
   }
 
+  get stepsToRender(): QuestionStepVm[] {
+    if (!this.selectedLesson) return [];
+
+    const steps = this.selectedLesson.steps ?? [];
+    if (steps.length > 0) {
+      return [...steps].sort((a, b) => a.orderIndex - b.orderIndex);
+    }
+
+    const fallback: QuestionStepVm[] = [];
+    if (this.selectedLesson.content) {
+      fallback.push({
+        id: `${this.selectedLesson.id}-content`,
+        lessonId: this.selectedLesson.id,
+        type: 'TEXT',
+        role: 'CONTEXT',
+        content: this.selectedLesson.content,
+        orderIndex: 0,
+      });
+    }
+
+    this.assetsToRender.forEach((asset, index) => {
+      if (!asset.type || asset.type === 'TEXT') return;
+      fallback.push({
+        id: asset.id,
+        lessonId: this.selectedLesson!.id,
+        type: asset.type,
+        role: asset.role,
+        url: asset.url,
+        orderIndex: asset.orderIndex ?? index + 1,
+      });
+    });
+    return fallback;
+  }
+
+  get visibleSteps(): QuestionStepVm[] {
+    return this.stepsToRender.slice(0, this.visibleStepCount);
+  }
+
+  get hasNextStep(): boolean {
+    return this.visibleStepCount < this.stepsToRender.length;
+  }
+
+  revealNextStep(): void {
+    if (this.hasNextStep) this.visibleStepCount += 1;
+  }
+
+  restartQuestion(): void {
+    if (!this.selectedLesson) return;
+    for (const step of this.stepsToRender) delete this.audioStarts[String(step.id)];
+    this.visibleStepCount = Math.min(2, this.stepsToRender.length);
+  }
+
+  resolveUrl(step: QuestionStepVm): string | null {
+    return this.api.resolveMediaUrl(step.url);
+  }
+
+  roleLabel(role: string): string {
+    const labels: Record<string, string> = {
+      CONTEXT: 'Contexto',
+      INITIAL_AUDIO: 'Chamada do controlador',
+      READBACK: 'Sua resposta',
+      INCIDENT: 'Nova situacao',
+      INCIDENT_IMAGE: 'Referencia visual',
+      INCIDENT_RESPONSE: 'Sua comunicacao',
+      FOLLOW_UP_AUDIO: 'Resposta do controlador',
+      CONFIRM_OR_CLARIFY: 'Confirmacao final',
+      DIALOGUE_AUDIO: 'Dialogo',
+      COMPREHENSION_RESPONSE: 'Sua analise',
+    };
+    return labels[role] ?? 'Etapa';
+  }
+
+  onAudioPlay(step: QuestionStepVm, player: HTMLAudioElement): void {
+    if (player.currentTime > 0.25) return;
+
+    const key = String(step.id);
+    const starts = this.audioStarts[key] ?? 0;
+    const limit = step.maxPlays ?? Number.MAX_SAFE_INTEGER;
+    if (starts >= limit) {
+      player.pause();
+      player.currentTime = 0;
+      return;
+    }
+    this.audioStarts[key] = starts + 1;
+  }
+
+  audioUsage(step: QuestionStepVm): string {
+    if (!step.maxPlays) return '';
+    return `${this.audioStarts[String(step.id)] ?? 0}/${step.maxPlays} reproducoes`;
+  }
+
   private legacyAsset(type: LessonType, url: string | null, orderIndex: number): LessonAssetVm | null {
     if (!type || !url || !this.selectedLesson) return null;
 
@@ -79,10 +170,4 @@ export class LessonsPageComponent implements OnInit {
     };
   }
 
-  formatDuration(sec: number | null | undefined): string {
-    if (sec == null) return '—';
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}m ${s}s`;
-  }
 }

@@ -8,6 +8,19 @@ export type LessonType = 'IMAGE' | 'AUDIO' | 'VIDEO' | 'TEXT' | null;
 
 export type LessonAssetRole = 'MAIN' | 'SUPPORT' | 'THUMBNAIL' | 'ATTACHMENT' | 'SUBTITLE' | string;
 
+export type QuestionStepType = 'TEXT' | 'AUDIO' | 'IMAGE' | 'VIDEO' | 'RESPONSE';
+
+export interface QuestionStepVm {
+  id: number | string;
+  lessonId: number;
+  type: QuestionStepType;
+  role: string;
+  content?: string | null;
+  url?: string | null;
+  maxPlays?: number | null;
+  orderIndex: number;
+}
+
 export interface LessonAssetVm {
   id: number;
   lessonId: number;
@@ -40,6 +53,7 @@ export interface LessonVm {
   description?: string;
   durationSeconds?: number;
   assets?: LessonAssetVm[];
+  steps?: QuestionStepVm[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -63,5 +77,13 @@ export class LessonsService {
     return this.http
       .get<LessonVm>(`${this.baseUrl}/api/simulations/questions/${id}`)
       .pipe(catchError(() => of(MOCK_LESSONS.find((lesson) => lesson.id === id) ?? MOCK_LESSONS[0])));
+  }
+
+  resolveMediaUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
+
+    const baseUrl = environment.mediaBaseUrl.replace(/\/$/, '');
+    return baseUrl ? `${baseUrl}/${url.replace(/^\//, '')}` : null;
   }
 }
